@@ -1,5 +1,5 @@
 name: 'ServiceNow DevOps Register Artifact'
-description: 'Send Artifat Details to ServiceNow Devops'
+description: 'Register Artifact Details in ServiceNow'
 inputs:
   devops-integration-user-name:
     description: 'Devops Integration User Name'
@@ -7,8 +7,8 @@ inputs:
   devops-integration-user-password:
     description: 'Devops Integration User Password'
     required: true
-  instance-name: 
-    description: 'ServiceNow Instance Name'
+  instance-url: 
+    description: 'ServiceNow Instance URL'
     required: true
   tool-id:
     description: 'Orchestration Tool Id'

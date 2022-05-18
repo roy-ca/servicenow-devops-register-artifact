@@ -1,7 +1,7 @@
 {
   "name": "servicenow-devops-register-artifact",
   "version": "1.0.0",
-  "description": "Register Artifact Custom Action",
+  "description": "ServiceNow Register Artifact Custom Action",
   "main": "dist/index.js",
   "private": true,
   "scripts": {
@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/ServiceNow/servicenow-devops-register-artifact#readme",
   "dependencies": {
-    "@actions/core": "^1.7.0",
+    "@actions/core": "^1.8.2",
     "axios": "^0.25.0",
-    "follow-redirects": "^1.14.9"
+    "follow-redirects": "^1.15.0"
   }
 }
