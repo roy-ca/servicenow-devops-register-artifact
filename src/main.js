@@ -3,7 +3,7 @@ const axios = require('axios');
 
 
 (async function main() {
-    const instanceUrl = core.getInput('instance-url', { required: true });
+    let instanceUrl = core.getInput('instance-url', { required: true });
     const toolId = core.getInput('tool-id', { required: true });
     const username = core.getInput('devops-integration-user-name', { required: true });
     const password = core.getInput('devops-integration-user-password', { required: true });
@@ -26,11 +26,13 @@ const axios = require('axios');
         core.setFailed(`Exception parsing github context ${e}`);
     }
 
-    const endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
-   
     let payload;
     
     try {
+        instanceUrl = instanceUrl.trim();
+        if (instanceUrl.endsWith('/'))
+            instanceUrl = instanceUrl.slice(0, -1);
+
         payload = {
             'artifacts': artifacts,
             'pipelineName': `${githubContext.repository}/${githubContext.workflow}`,
@@ -45,6 +47,7 @@ const axios = require('axios');
     }
 
     let snowResponse;
+    const endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
 
     try {
         const token = `${username}:${password}`;
@@ -59,7 +62,13 @@ const axios = require('axios');
         let httpHeaders = { headers: defaultHeaders };
         snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
     } catch (e) {
-        core.setFailed('ServiceNow Artifact Versions are not created. Please check ServiceNow logs for more details.');
+        if (e.message.includes('ECONNREFUSED') || e.message.includes('ENOTFOUND') || e.message.includes('405')) {
+            core.setFailed('ServiceNow Instance URL is NOT valid. Please correct the URL and try again.');
+        } else if (e.message.includes('401')) {
+            core.setFailed('Invalid Credentials. Please correct the credentials and try again.');
+        } else {
+            core.setFailed('ServiceNow Artifact Versions are NOT created. Please check ServiceNow logs for more details.');
+        }
     }
     
 })();
