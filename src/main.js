@@ -5,8 +5,9 @@ const axios = require('axios');
 (async function main() {
     let instanceUrl = core.getInput('instance-url', { required: true });
     const toolId = core.getInput('tool-id', { required: true });
-    const username = core.getInput('devops-integration-user-name', { required: true });
-    const password = core.getInput('devops-integration-user-password', { required: true });
+    const username = core.getInput('devops-integration-user-name', { required: false });
+    const password = core.getInput('devops-integration-user-password', { required: false });
+    const secretToken = core.getInput('devops-secret-token', { required: false});
     const jobName = core.getInput('job-name', { required: true });
 
     let artifacts = core.getInput('artifacts', { required: true });
@@ -47,19 +48,34 @@ const axios = require('axios');
     }
 
     let snowResponse;
-    const endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
+    let endpoint = '';
+    let httpHeaders = {};
 
     try {
-        const token = `${username}:${password}`;
-        const encodedToken = Buffer.from(token).toString('base64');
+        if(username !== '' && password !== '') {
+            endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
+            const token = `${username}:${password}`;
+            const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');;
+            const defaultHeadersForBasicAuth = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Basic ' + `${encodedTokenForBasicAuth}`
+            };
 
-        const defaultHeaders = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Basic ' + `${encodedToken}`
-        };
+            httpHeaders = { headers: defaultHeadersForBasicAuth };
+        }
+        else {
+            endpoint = `${instanceUrl}/api/sn_devops/v2/devops/artifact/registration?orchestrationToolId=${toolId}`;
+            const defaultHeadersForToken = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + `${secretToken}`
+            };
 
-        let httpHeaders = { headers: defaultHeaders };
+            httpHeaders = { headers: defaultHeadersForToken };
+        }
+
+        console.log("Headers:"+JSON.stringify(httpHeaders));
         snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
     } catch (e) {
         if (e.message.includes('ECONNREFUSED') || e.message.includes('ENOTFOUND') || e.message.includes('405')) {
@@ -70,5 +86,4 @@ const axios = require('axios');
             core.setFailed('ServiceNow Artifact Versions are NOT created. Please check ServiceNow logs for more details.');
         }
     }
-    
 })();
