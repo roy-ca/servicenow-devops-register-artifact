@@ -90,6 +90,7 @@ const axios = require('axios');
         else if(username !== '' && password !== '') {
             console.log("Came inside only username and password");
             endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
+            console.log("Endpoint:"+endpoint);
             const token = `${username}:${password}`;
             const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');;
             const defaultHeadersForBasicAuth = {
@@ -99,6 +100,8 @@ const axios = require('axios');
             };
 
             httpHeaders = { headers: defaultHeadersForBasicAuth };
+            snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
+            console.log("Headers:"+JSON.stringify(httpHeaders));
         }
         else {
             core.setFailed('Please provide appropriate credentials');
