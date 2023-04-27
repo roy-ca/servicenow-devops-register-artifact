@@ -5239,7 +5239,42 @@ const axios = __nccwpck_require__(6805);
     let httpHeaders = {};
 
     try {
-        if(username !== '' && password !== '') {
+        if(secretToken !== '') {
+            try {
+                endpoint = `${instanceUrl}/api/sn_devops/v2/devops/artifact/registration?orchestrationToolId=${toolId}`;
+                const defaultHeadersForToken = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + `${secretToken}`
+                };
+
+                httpHeaders = { headers: defaultHeadersForToken };
+                snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
+            } catch(err) {
+                console.log('Retrying with username and password');
+                if (err.response && err.response.status === 401 && username !== '' && password !== '') {
+                    try { 
+                        endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
+                        const token = `${username}:${password}`;
+                        const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');
+                        const defaultHeadersForBasicAuth = {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Authorization': 'Basic ' + `${encodedTokenForBasicAuth}`
+                        };
+
+                        httpHeaders = { headers: defaultHeadersForBasicAuth };
+                        snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
+                    } catch(err) {
+                        throw err;
+                    }
+                }
+                else {
+                    throw err;
+                }
+            }
+        }
+        else if(username !== '' && password !== '') {
             endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
             const token = `${username}:${password}`;
             const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');;
@@ -5251,19 +5286,6 @@ const axios = __nccwpck_require__(6805);
 
             httpHeaders = { headers: defaultHeadersForBasicAuth };
         }
-        else {
-            endpoint = `${instanceUrl}/api/sn_devops/v2/devops/artifact/registration?orchestrationToolId=${toolId}`;
-            const defaultHeadersForToken = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + `${secretToken}`
-            };
-
-            httpHeaders = { headers: defaultHeadersForToken };
-        }
-
-        console.log("Headers:"+JSON.stringify(httpHeaders));
-        snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
     } catch (e) {
         if (e.message.includes('ECONNREFUSED') || e.message.includes('ENOTFOUND') || e.message.includes('405')) {
             core.setFailed('ServiceNow Instance URL is NOT valid. Please correct the URL and try again.');
