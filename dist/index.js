@@ -5251,8 +5251,8 @@ const axios = __nccwpck_require__(6805);
                 httpHeaders = { headers: defaultHeadersForToken };
                 snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
             } catch(err) {
-                console.log('Retrying with username and password');
                 if (err.response && err.response.status === 401 && username !== '' && password !== '') {
+                    console.log('Retrying with username and password since token provide is invalid or not active');
                     try { 
                         endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
                         const token = `${username}:${password}`;
@@ -5275,9 +5275,7 @@ const axios = __nccwpck_require__(6805);
             }
         }
         else if(username !== '' && password !== '') {
-            console.log("Came inside only username and password");
             endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
-            console.log("Endpoint:"+endpoint);
             const token = `${username}:${password}`;
             const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');;
             const defaultHeadersForBasicAuth = {
@@ -5288,10 +5286,9 @@ const axios = __nccwpck_require__(6805);
 
             httpHeaders = { headers: defaultHeadersForBasicAuth };
             snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
-            console.log("Headers:"+JSON.stringify(httpHeaders));
         }
         else {
-            core.setFailed('Please provide appropriate credentials');
+            core.setFailed('Please provide either token or user name password and try again');
         }
     } catch (e) {
         if (e.message.includes('ECONNREFUSED') || e.message.includes('ENOTFOUND') || e.message.includes('405')) {
