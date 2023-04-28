@@ -53,42 +53,20 @@ const axios = require('axios');
 
     try {
         if(secretToken !== '') {
-            try {
-                endpoint = `${instanceUrl}/api/sn_devops/v2/devops/artifact/registration?orchestrationToolId=${toolId}`;
-                const defaultHeadersForToken = {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': 'Bearer ' + `${secretToken}`
-                };
+            
+            endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
+            const defaultHeadersForToken = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'sn_devops.CustomTokenPublicAuth '+`${secretToken} ${toolId}`
+            };
 
-                httpHeaders = { headers: defaultHeadersForToken };
-                snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
-            } catch(err) {
-                if (err.response && err.response.status === 401 && username !== '' && password !== '') {
-                    console.log('Retrying with username and password since token provide is invalid or not active');
-                    try { 
-                        endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
-                        const token = `${username}:${password}`;
-                        const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');
-                        const defaultHeadersForBasicAuth = {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': 'Basic ' + `${encodedTokenForBasicAuth}`
-                        };
-
-                        httpHeaders = { headers: defaultHeadersForBasicAuth };
-                        snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
-                    } catch(err) {
-                        throw err;
-                    }
-                }
-                else {
-                    throw err;
-                }
-            }
+            httpHeaders = { headers: defaultHeadersForToken };
+            snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
+            
         }
         else if(username !== '' && password !== '') {
-            endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
+            endpoint = `${instanceUrl}/api/sn_devops/v1/devops/artifact/registration?orchestrationToolId=${toolId}`;
             const token = `${username}:${password}`;
             const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');;
             const defaultHeadersForBasicAuth = {
