@@ -5245,7 +5245,7 @@ const axios = __nccwpck_require__(6805);
             const defaultHeadersForToken = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': 'sn_devops.CustomTokenPublicAuth '+`${secretToken} ${toolId}`
+                'Authorization': 'sn_devops.CustomTokenPublic '+`${secretToken} ${toolId}`
             };
 
             httpHeaders = { headers: defaultHeadersForToken };
