@@ -52,7 +52,7 @@ const axios = require('axios');
     let httpHeaders = {};
 
     try {
-        if(secretToken !== '' && username !== '' && password !== '') {
+        if(secretToken === '' && username === '' && password === '') {
             core.setFailed('Either secret token or integration username, password is needed for integration user authentication');
         }
         else if(secretToken !== '') {

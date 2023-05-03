@@ -5239,7 +5239,7 @@ const axios = __nccwpck_require__(6805);
     let httpHeaders = {};
 
     try {
-        if(secretToken !== '' && username !== '' && password !== '') {
+        if(secretToken === '' && username === '' && password === '') {
             core.setFailed('Either secret token or integration username, password is needed for integration user authentication');
         }
         else if(secretToken !== '') {
