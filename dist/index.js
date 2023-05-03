@@ -5239,7 +5239,10 @@ const axios = __nccwpck_require__(6805);
     let httpHeaders = {};
 
     try {
-        if(secretToken !== '') {
+        if(secretToken !== '' && username !== '' && password !== '') {
+            core.setFailed('Either secret token or integration username, password is needed for integration user authentication');
+        }
+        else if(secretToken !== '') {
             
             endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
             const defaultHeadersForToken = {
@@ -5265,11 +5268,8 @@ const axios = __nccwpck_require__(6805);
             httpHeaders = { headers: defaultHeadersForBasicAuth };
             snowResponse = await axios.post(endpoint, JSON.stringify(payload), httpHeaders);
         }
-        else if(username === '' || password === '') {
-            core.setFailed("For Basic Auth, Username and Password is mandatory for integration user authentication");
-        }
         else {
-            core.setFailed('Either secret token or integration username, password is needed for integration user authentication');
+            core.setFailed("For Basic Auth, Username and Password is mandatory for integration user authentication");
         }
     } catch (e) {
         if (e.message.includes('ECONNREFUSED') || e.message.includes('ENOTFOUND') || e.message.includes('405')) {
