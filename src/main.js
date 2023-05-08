@@ -7,7 +7,7 @@ const axios = require('axios');
     const toolId = core.getInput('tool-id', { required: true });
     const username = core.getInput('devops-integration-user-name', { required: false });
     const password = core.getInput('devops-integration-user-password', { required: false });
-    const secretToken = core.getInput('devops-secret-token', { required: false});
+    const token = core.getInput('devops-integration-token', { required: false});
     const jobName = core.getInput('job-name', { required: true });
 
     let artifacts = core.getInput('artifacts', { required: true });
@@ -52,16 +52,16 @@ const axios = require('axios');
     let httpHeaders = {};
 
     try {
-        if(secretToken === '' && username === '' && password === '') {
+        if(token === '' && username === '' && password === '') {
             core.setFailed('Either secret token or integration username, password is needed for integration user authentication');
         }
-        else if(secretToken !== '') {
+        else if(token !== '') {
             
             endpoint = `${instanceUrl}/api/sn_devops/devops/artifact/registration?orchestrationToolId=${toolId}`;
             const defaultHeadersForToken = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'Authorization': 'sn_devops.DevOpsToken '+`${toolId}:${secretToken}`
+                'Authorization': 'sn_devops.DevOpsToken '+`${toolId}:${token}`
             };
 
             httpHeaders = { headers: defaultHeadersForToken };
@@ -70,8 +70,8 @@ const axios = require('axios');
         }
         else if(username !== '' && password !== '') {
             endpoint = `${instanceUrl}/api/sn_devops/v1/devops/artifact/registration?orchestrationToolId=${toolId}`;
-            const token = `${username}:${password}`;
-            const encodedTokenForBasicAuth = Buffer.from(token).toString('base64');;
+            const tokenBasicAuth = `${username}:${password}`;
+            const encodedTokenForBasicAuth = Buffer.from(tokenBasicAuth).toString('base64');;
             const defaultHeadersForBasicAuth = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
